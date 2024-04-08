@@ -8,6 +8,7 @@ interface IUser extends IUserForm {
     id: number;
 }
 
+let updateTrigger: number = -1;
 
 class UserService {
     private static readonly _userKey = 'users'
@@ -15,7 +16,6 @@ class UserService {
     private static _getAll(): IUser[] {
         return JSON.parse(localStorage.getItem(this._userKey)) || []
     }
-
 
     static create(data: IUserForm): void {
         const users = this._getAll();
@@ -36,8 +36,21 @@ class UserService {
             button.onclick = () => {
                 this._deleteById(user.id)
             }
+            const buttonUpdate = document.createElement('button');
+            buttonUpdate.innerText = 'update'
+            buttonUpdate.onclick = () => {
+                let inputName = document.getElementsByName('name')[0] as HTMLInputElement
+                let inputAge = document.getElementsByName('age')[0] as HTMLInputElement
+                //
+                let updateButton = document.getElementById('saveButton') as HTMLButtonElement;
+                updateButton.innerText = 'update';
+                inputName.value = user.name;
+                inputAge.value = JSON.stringify(user.age);
+                updateTrigger = user.id;
+            }
             itemDiv.innerText = `${user.id} -- ${user.name} -- ${user.age}`
-            itemDiv.appendChild(button)
+            // itemDiv.appendChild(button)
+            itemDiv.append(button, buttonUpdate)
             return itemDiv
         });
 
@@ -60,7 +73,23 @@ class UserService {
         this._setToStorage(users)
     }
 
-
+    static update(id: number) :void {
+        let inputName = document.getElementsByName('name')[0] as HTMLInputElement
+        let inputAge = document.getElementsByName('age')[0] as HTMLInputElement
+        // let users = this._getAll();
+        // const index = users.findIndex(user => user.id === id);
+        // console.log(inputName.value);
+        const users = this._getAll();
+        const index = users.findIndex(user => user.id === id);
+        console.log(users);
+        // users.splice(index, 1)
+        users[index].name = inputName.value;
+        users[index].age = +inputAge.value;
+        this._setToStorage(users)
+        updateTrigger = -1;
+        let updateButton = document.getElementById('saveButton') as HTMLButtonElement;
+        updateButton.innerText = 'save';
+    }
 }
 
 UserService.showHtml()
@@ -72,10 +101,16 @@ interface IInput {
     age: HTMLInputElement;
 }
 
+
 form.onsubmit = (e: SubmitEvent) => {
     e.preventDefault()
+    if (updateTrigger <= 0) {
     const {name: nameInput, age: ageInput} = form as any as IInput;
     UserService.create({name: nameInput.value, age: +ageInput.value})
     form.reset()
+    } else {
+        UserService.update(updateTrigger);
+        form.reset();
+    }
 }
 
