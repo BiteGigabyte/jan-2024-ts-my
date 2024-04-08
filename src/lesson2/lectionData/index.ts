@@ -83,4 +83,3 @@ form.onsubmit = (e: SubmitEvent) => {
     UserService.create({name: nameInput.value, age: +ageInput.value})
     form.reset()
 }
-
