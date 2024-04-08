@@ -1,0 +1,6 @@
+/.idea/
+/node_modules/
+/jan-2024-ts.iml
+/package-lock.json
+/src/lesson2/dist/
+/src/lesson2/lectionData/dist/
